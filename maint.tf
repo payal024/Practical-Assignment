@@ -259,7 +259,7 @@ resource "aws_key_pair" "key_pair" {
 }
 
 
-#Create a new EC2 launch configuration
+# Create a new EC2 launch configuration
 
 resource "aws_instance" "ec2_public" {
     ami                    = "ami-026b57f3c383c2eec"
@@ -269,7 +269,7 @@ resource "aws_instance" "ec2_public" {
     subnet_id                   = "${aws_subnet.pub_sub1.id}"
     associate_public_ip_address = true
     user_data = filebase64("${path.module}/init_webserver.sh")
-  #iam_instance_profile = "${aws_iam_instance_profile.some_profile.id}"
+  # iam_instance_profile = "${aws_iam_instance_profile.some_profile.id}"
     lifecycle {
     create_before_destroy = true
      }
@@ -292,7 +292,7 @@ provisioner "file" {
     host        = self.public_ip
     }
  }
-     #chmod key 400 on EC2 instance
+     # chmod key 400 on EC2 instance
      provisioner "remote-exec" {
         inline = ["chmod 400 ~/${var.key_name}.pem"]
         connection {
@@ -304,7 +304,7 @@ provisioner "file" {
           }
 }
 
-#Create a new EC2 launch configuration
+# Create a new EC2 launch configuration
 resource "aws_instance" "ec2_private" {
 #name_prefix                 = "terraform-example-web-instance"
      ami                    = "ami-026b57f3c383c2eec"
