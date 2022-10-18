@@ -240,10 +240,8 @@ ingress {
     protocol    = "tcp"
     description = "HTTP"
     cidr_blocks = ["0.0.0.0/0"]
-
- }
-
-ingress {
+  }
+  ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
@@ -257,21 +255,23 @@ ingress {
     description = "HTTPS"
     cidr_blocks = ["0.0.0.0/0"]
   }
-egress {
+  egress {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
-
  tags = {
     Name = var.sg_ws_tagname 
     Project = "practical-assignment"
   }
 }
+
+
 # Generate the SSH keypair that we’ll use to configure the EC2 instance.
 # After that, write the private key to a local file and upload the public key to AWS
+
 resource "tls_private_key" "key" {
   algorithm = "RSA"
 }
@@ -284,13 +284,16 @@ resource "aws_key_pair" "key_pair" {
   key_name   = "TEST"
   public_key = tls_private_key.key.public_key_openssh
 }
+
+
 #Create a new EC2 launch configuration
+
 resource "aws_instance" "ec2_public" {
     ami                    = "ami-026b57f3c383c2eec"
     instance_type               = "${var.instance_type}"
     key_name                    = "${var.key_name}"
     security_groups             = ["${aws_security_group.ssh-security-group.id}"]
-    subnet_id                   = "${aws_subnet.pub-sub1.id}"
+    subnet_id                   = "${aws_subnet.pub_sub1.id}"
     associate_public_ip_address = true
     user_data = filebase64("${path.module}/init_webserver.sh")
   #iam_instance_profile = "${aws_iam_instance_profile.some_profile.id}"
@@ -305,6 +308,7 @@ resource "aws_instance" "ec2_public" {
 
 # Copies the ssh key file to home dir
 # Copies the ssh key file to home dir
+  
 provisioner "file" {
     source      = "./${var.key_name}.pem"
     destination = "/home/ec2-user/${var.key_name}.pem"
@@ -324,5 +328,70 @@ provisioner "file" {
         private_key = file("${var.key_name}.pem")
         host        = self.public_ip
                  }
-             }
+          }
+}
+
+#Create a new EC2 launch configuration
+resource "aws_instance" "ec2_private" {
+#name_prefix                 = "terraform-example-web-instance"
+     ami                    = "ami-026b57f3c383c2eec"
+     instance_type               = "${var.instance_type}"
+     key_name                    = "${var.key_name}"
+     security_groups             = ["${aws_security_group.webserver-sg.id}"]
+     subnet_id                   = "${aws_subnet.pri_sub1.id}"
+     associate_public_ip_address = false
+     user_data = filebase64("${path.module}/init_webserver.sh")
+   lifecycle {
+    create_before_destroy = true
+   } 
+  tags = {
+   Name = "EC2-Private"
+   Project = "practical-assignment" 
+ }
+}
+
+# Create Target group
+
+resource "aws_lb_target_group" "TG-tf" {
+  name     = "Demo-TargetGroup-tf"
+  depends_on = ["aws_vpc.main"]
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = "${aws_vpc.main.id}"
+  health_check {
+    interval            = 70
+    path                = "/index.html"
+    port                = 80
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 60 
+    protocol            = "HTTP"
+    matcher             = "200,202"
+  }
+}
+# Create ALB
+
+resource "aws_lb" "ALB-tf" {
+   name              = "Demo-ALG-tf"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.elb_sg.id]
+  subnets            = [aws_subnet.pub_sub1.id,aws_subnet.pub_sub2.id]
+
+  tags = {
+	name  = "Demo-AppLoadBalancer-tf"
+    	Project = "practical-assignment"
+  }
+}
+
+# Create ALB Listener 
+
+resource "aws_lb_listener" "front_end" {
+  load_balancer_arn = aws_lb.ALB-tf.arn
+  port              = "80"
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.TG-tf.arn
+  }
 }
