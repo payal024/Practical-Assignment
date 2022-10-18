@@ -10,6 +10,7 @@ terraform {
 
 provider "aws" {
   region  = var.region
+  profile = var.aws-profile
 }
 # Create VPC
 resource "aws_vpc" "main" {
