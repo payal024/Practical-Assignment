@@ -209,13 +209,14 @@ resource "aws_security_group" "webserver_sg" {
   description = var.sg_description
   vpc_id      = aws_vpc.main.id
 
-ingress {
+  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     description = "HTTP"
     cidr_blocks = ["0.0.0.0/0"]
-  }
+  } 
+	
   ingress {
     from_port   = 22
     to_port     = 22
@@ -223,6 +224,7 @@ ingress {
     description = "SSH"
     security_groups = ["${aws_security_group.ssh-security-group.id)"]
   }
+	
   ingress {
     from_port   = 443
     to_port     = 443
@@ -230,6 +232,7 @@ ingress {
     description = "HTTPS"
     cidr_blocks = ["0.0.0.0/0"]
   }
+	
   egress {
     from_port        = 0
     to_port          = 0
@@ -284,7 +287,7 @@ resource "aws_instance" "ec2_public" {
 # Copies the ssh key file to home dir
 # Copies the ssh key file to home dir
   
-provisioner "file" {
+  provisioner "file" {
     source      = "./${var.key_name}.pem"
     destination = "/home/ec2-user/${var.key_name}.pem"
     connection {
@@ -307,7 +310,7 @@ provisioner "file" {
 }
 
 # Create a new EC2 launch configuration
-resource "aws_instance" "ec2_private" {
+     resource "aws_instance" "ec2_private" {
 #name_prefix                 = "terraform-example-web-instance"
      ami                    = "ami-026b57f3c383c2eec"
      instance_type               = "${var.instance_type}"
