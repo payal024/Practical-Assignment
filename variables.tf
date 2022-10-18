@@ -2,8 +2,13 @@ variable "ami"{
  type = string
   default = "ami-ami-026b57f3c383c2eec"
 }
-variable "keyname"{
-  default = "MY-TEMP-PVT-INSTANCE"
+variable "instance_type" {
+type        = string
+default     = "t2.nano"
+}
+variable key_name {
+default     = "LL-TEST"
+type = string
 }
 variable "region" {
   type        = string
@@ -64,4 +69,9 @@ variable "sg_ws_description"{
 variable "sg_ws_tagname"{
  type = string
  default = "SG for web"
+}
+variable "ssh-location" {
+default = "0.0.0.0/0"
+description = "SSH variable for bastion host"
+type = string
 }
