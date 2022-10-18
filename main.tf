@@ -179,32 +179,7 @@ resource "aws_route_table_association" "pri_sub2_to_natgw1" {
 
 # Create security group for load balancer
 
-resource "aws_security_group" "elb_sg" {
-  name        = var.sg_name
-  description = var.sg_description
-  vpc_id      = aws_vpc.main.id
 
-ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    description = "HTTP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
- 
- tags = {
-    Name = var.sg_tagname
-    Project = "practical-assignment" 
-  }	
-}
 # Create Security Group for the Bastion Host aka Jump Box
 resource "aws_security_group" "ssh-security-group" {
   name        = "SSH Security Group"
@@ -230,7 +205,7 @@ egress {
    }
   }
 resource "aws_security_group" "webserver_sg" {
-  name        = var.sg_ws_name
+  name        = var.sg_name
   description = var.sg_ws_description
   vpc_id      = aws_vpc.main.id
 
@@ -269,7 +244,7 @@ ingress {
 }
 
 
-# Generate the SSH keypair that we’ll use to configure the EC2 instance.
+# Generate the SSH keypair that well use to configure the EC2 instance.
 # After that, write the private key to a local file and upload the public key to AWS
 
 resource "tls_private_key" "key" {
@@ -337,7 +312,7 @@ resource "aws_instance" "ec2_private" {
      ami                    = "ami-026b57f3c383c2eec"
      instance_type               = "${var.instance_type}"
      key_name                    = "${var.key_name}"
-     security_groups             = ["${aws_security_group.webserver-sg.id}"]
+     security_groups             = ["${aws_security_group.webserver_sg.id}"]
      subnet_id                   = "${aws_subnet.pri_sub1.id}"
      associate_public_ip_address = false
      user_data = filebase64("${path.module}/init_webserver.sh")
@@ -360,7 +335,7 @@ resource "aws_lb_target_group" "TG-tf" {
   vpc_id   = "${aws_vpc.main.id}"
   health_check {
     interval            = 70
-    path                = "/index.html"
+    path                = "/"
     port                = 80
     healthy_threshold   = 2
     unhealthy_threshold = 2
@@ -375,7 +350,7 @@ resource "aws_lb" "ALB-tf" {
    name              = "Demo-ALG-tf"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.elb_sg.id]
+  security_groups    = [aws_security_group.webserver_sg.id]
   subnets            = [aws_subnet.pub_sub1.id,aws_subnet.pub_sub2.id]
 
   tags = {
