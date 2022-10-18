@@ -219,7 +219,7 @@ ingress {
     to_port     = 22
     protocol    = "tcp"
     description = "SSH"
-    security_groups = ["${aws_security_group.ssh-security-group.id)"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port   = 443
