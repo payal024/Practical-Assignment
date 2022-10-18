@@ -261,7 +261,7 @@ resource "aws_key_pair" "key_pair" {
 }
 
 
-#Create a new EC2 launch configuration
+# Create a new EC2 launch configuration
 
 resource "aws_instance" "ec2_public" {
     ami                    = "ami-026b57f3c383c2eec"
@@ -294,7 +294,7 @@ provisioner "file" {
     host        = self.public_ip
     }
  }
-     #chmod key 400 on EC2 instance
+     # chmod key 400 on EC2 instance
      provisioner "remote-exec" {
         inline = ["chmod 400 ~/${var.key_name}.pem"]
         connection {
@@ -306,7 +306,7 @@ provisioner "file" {
           }
 }
 
-#Create a new EC2 launch configuration
+# Create a new EC2 launch configuration
 resource "aws_instance" "ec2_private" {
 #name_prefix                 = "terraform-example-web-instance"
      ami                    = "ami-026b57f3c383c2eec"
