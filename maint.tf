@@ -202,8 +202,8 @@ egress {
    }
   }
 resource "aws_security_group" "webserver_sg" {
-  name        = var.sg_name
-  description = var.sg_description
+  name        = var.sg_ws_name
+  description = var.sg_ws_description
   vpc_id      = aws_vpc.main.id
 
 ingress {
@@ -235,7 +235,7 @@ ingress {
     ipv6_cidr_blocks = ["::/0"]
   }
  tags = {
-    Name = var.sg_tagname 
+    Name = var.sg_ws_tagname 
     Project = "practical-assignment"
   }
 }
