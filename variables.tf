@@ -6,6 +6,10 @@ variable "instance_type" {
 type        = string
 default     = "t2.nano"
 }
+variable "aws-profile" {
+  description = "The name of the AWS shared credentials account."
+  type        = string
+}
 variable key_name {
 default     = "LL-TEST"
 type = string
