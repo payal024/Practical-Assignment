@@ -250,7 +250,7 @@ resource "tls_private_key" "key" {
 }
 resource "local_file" "private_key" {
   filename          = "TEST.pem"
-  sensitive_content = tls_private_key.key.private_key_pem
+ #sensitive_content = tls_private_key.key.private_key_pem
   file_permission   = "0400"
 }
 resource "aws_key_pair" "key_pair" {
@@ -311,7 +311,7 @@ resource "aws_instance" "ec2_private" {
      instance_type               = "${var.instance_type}"
      key_name                    = "${var.key_name}"
      security_groups             = ["${aws_security_group.webserver_sg.id}"]
-     subnet_id                   = "${aws_subnet.pri_sub1.id}"
+     subnet_id                   = "${aws_subnet.prv_sub1.id}"
      associate_public_ip_address = false
      user_data = filebase64("${path.module}/init_webserver.sh")
    lifecycle {
