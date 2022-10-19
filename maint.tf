@@ -262,7 +262,7 @@ ingress {
 # Create a new EC2 launch configuration
 
 resource "aws_instance" "ec2_public" {
-    ami                    = "ami-026b57f3c383c2eec"
+    ami                    = "ami-01216e7612243e0ef"
     instance_type               = "${var.instance_type}"
     key_name                    = "${var.key_name}"
     security_groups             = ["${aws_security_group.ssh-security-group.id}"]
@@ -307,7 +307,8 @@ provisioner "file" {
 # Create a new EC2 launch configuration
 resource "aws_instance" "ec2_private" {
 #name_prefix                 = "terraform-example-web-instance"
-     ami                    = "ami-026b57f3c383c2eec"
+     ami                    = "ami-01216e7612243e0ef"
+
      instance_type               = "${var.instance_type}"
      key_name                    = "${var.key_name}"
      security_groups             = ["${aws_security_group.webserver_sg.id}"]
